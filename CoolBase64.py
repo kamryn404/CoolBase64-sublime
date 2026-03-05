@@ -25,7 +25,10 @@ class Base64DecodeCommand(sublime_plugin.TextCommand):
                 break
 
             decoded = base64.decodebytes(view.substr(s).encode())
-            decodedstring = decoded.decode().replace("\r", "")
+            try:
+                decodedstring = decoded.decode("utf-8").replace("\r", "")
+            except UnicodeDecodeError:
+                decodedstring = decoded.decode("cp1252").replace("\r", "")
             view.replace(edit, s, decodedstring)
 
 class CopyFileAsBase64Command(sublime_plugin.WindowCommand):
