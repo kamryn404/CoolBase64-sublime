@@ -23,8 +23,13 @@ class Base64DecodeCommand(sublime_plugin.TextCommand):
         for s in view.sel():
             if s.empty():
                 break
+            enc_s = view.substr(s)
+            if len(enc_s) % 4 == 2:
+                enc_s += "=="
+            elif len(enc_s) % 4 == 3:
+                enc_s += "="
 
-            decoded = base64.decodebytes(view.substr(s).encode())
+            decoded = base64.decodebytes(enc_s.encode())
             try:
                 decodedstring = decoded.decode("utf-8").replace("\r", "")
             except UnicodeDecodeError:
@@ -81,6 +86,11 @@ class Base64SaveAsBinaryCommand(sublime_plugin.TextCommand):
         for s in view.sel():
             if s.empty():
                 break
+            enc_s = view.substr(s)
+            if len(enc_s) % 4 == 2:
+                enc_s += "=="
+            elif len(enc_s) % 4 == 3:
+                enc_s += "="
 
             if view.file_name():
                 path = view.file_name().rsplit('\\', 1)[0]
@@ -89,5 +99,5 @@ class Base64SaveAsBinaryCommand(sublime_plugin.TextCommand):
                 path = ""
                 suggested_name = "decoded_file"
 
-            binary_data = base64.b64decode(view.substr(s))
+            binary_data = base64.b64decode(enc_s)
             sublime.save_dialog(save_decoded_binary, directory=path, name=suggested_name)
